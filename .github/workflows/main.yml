@@ -6,8 +6,8 @@ on:
       - main
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
+  build-push-deploy:
+    runs-on: self-hosted
 
     steps:
       - name: Checkout code
@@ -21,3 +21,8 @@ jobs:
 
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/devops-full-project:${{ github.sha }}
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl set image deployment/devops-app devops-app=${{ secrets.DOCKER_USERNAME }}/devops-full-project:${{ github.sha }}
+          kubectl rollout status deployment/devops-app
